@@ -4,6 +4,8 @@ PostgreSQL dan ma'lumot olib, frontend uchun API taqdim etadi.
 """
 
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -320,3 +322,17 @@ async def get_leaderboard():
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+# ── Frontend static fayllarni serve qilish ──
+# index.html ni root "/" da ko'rsatish
+@app.get("/")
+async def serve_frontend():
+    frontend_path = os.path.join(os.path.dirname(__file__), "static", "index.html")
+    if os.path.exists(frontend_path):
+        return FileResponse(frontend_path)
+    return {"message": "GOTv3 Mini App API is running. Frontend not found."}
+
+# Static fayllar papkasi (agar boshqa fayllar bo'lsa)
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
