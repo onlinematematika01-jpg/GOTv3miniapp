@@ -327,7 +327,7 @@ async def health():
 # index.html ni root "/" da ko'rsatish
 @app.get("/")
 async def serve_frontend():
-    frontend_path = os.path.join(os.path.dirname(__file__), "index.html")
+    frontend_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
     if os.path.exists(frontend_path):
         return FileResponse(frontend_path)
     return {"message": "GOTv3 Mini App API is running. Frontend not found."}
@@ -336,3 +336,10 @@ async def serve_frontend():
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+@app.get("/debug")
+async def debug():
+    import os
+    base = os.path.dirname(os.path.abspath(__file__))
+    files = os.listdir(base)
+    return {"base_dir": base, "files": files}
